@@ -106,8 +106,10 @@ set list
 
 " Colors
 " =============================================================================
+if isdirectory(expand('$HOME/.vim/colors'))
 set background=dark
 colorscheme hemisu
+endif
 
 
 " Disable arrow keys
