@@ -1,6 +1,6 @@
 # Antigen
 # =============================================================================
-source ~/GitHub/christiansmith/kaizen/antigen/antigen.zsh
+source $HOME/.kaizen/antigen/antigen.zsh
 antigen use oh-my-zsh
 antigen bundle git
 antigen theme gentoo
