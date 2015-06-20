@@ -27,3 +27,9 @@ setopt ignore_eof
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$GOPATH/bin
+
+
+# Aliases
+# =============================================================================
+source $HOME/.aliases
+
