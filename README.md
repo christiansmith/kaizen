@@ -1,34 +1,69 @@
 kaizen
 ======
 
-### WTF
-
-Kaizen is an opinionated collection of dotfiles, shell scripts and How To's that makes it dead simple to set up sane configurations of tmux, vim, and zsh on a new Ubuntu Server in the cloud. It's optimized for hacking primarily backend code in an environment similar to the one it will be deployed in (containers in the cloud). It aims to make pair programming and working remotely a piece of cake, and to minimize the importance of the client platform. Kaizen turns a Macbook Pro into a $3000 window manager and an Android tablet with a bluetooth keyboard into a powerful $300 workstation. It slices, it dices and even juliennes fries, and if you buy now, we'll throw in a free set of steak knives. That was a joke. There are no free steak knives :)
 
 ### Requirements
 
-Set up a new bare metal or virtual server running Ubuntu 14.10. [Lock it down](https://www.digitalocean.com/community/tutorial_series/new-ubuntu-14-04-server-checklist), as recommended by Digital Ocean and others.
+* Install ansible locally
+* Tested with Ubuntu 14.04 LTS on Digital Ocean
 
 ### Installation
 
-#### Did you read the requirements? Good. This could totally destroy any existing setup you have, so make sure you run it on a fresh Ubuntu instance.
+* Edit `hosts` with correct `IP_ADDRESS` and `HOME` path
+* Run `ansible-playbook playbook.yml -i hosts -l forge`
+* Log in with `ssh smith@IP_ADDRESS`
 
-Running this command on Ubuntu linux will install system packages, clone this repository, initialize its submodules, create symlinks to dotfiles, set the default shell to zsh, install vim and zsh plugins, configure git, and generate a new ssh keypair. When it's finished, you'll have nothing left to do but write code, ..., and profit.
+### Ansible Playbook
 
-```bash
-# CHECK BACK IN A DAY OR TWO
-```
+* creates user with sudo membership
+* adds ssh keys from https://github.com/USERNAME.keys
+* configures ufw firewall
+* updates cron-apt
+* sets timezone
+* configures ntp
+* ensures zsh is the default shell
+* adds .gitconfig from local user
+* installs stable nodejs and updates npm
+* installs dotfiles
+* installs antigen plugins for zsh
+* installs Vundle for vim
+* installs vim plugins
+* creates standard directories
 
-### Features
+### Packages Installed and Updated
 
-#### Installs system packages
+#### apt
 
-* build-essentials
-* docker.io
-* nodejs
+* git
+* ufw
+* cron-apt
+* ntp
+* mosh
+* tmate
+* hub
+* curl
+* mercurial
+* make
+* binutils
+* bison
+* gcc
+* build-essential
+* python-software-properties
 * silversearcher-ag
 * zsh
-* mosh (built from source to support remote scrolling)
+* tmux
+* vim
+
+#### ppa
+
+* nodejs/npm
+* docker
+* docker compose
+
+#### source
+
+* kaizen
+
 
 #### Vim bundles with Vundle
 
