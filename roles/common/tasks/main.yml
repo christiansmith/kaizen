@@ -1,0 +1,88 @@
+---
+- name: Run apt-get update if the latest one is more than one hour ago
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Install packages
+  apt: pkg={{ item }} state=latest update_cache=yes
+  with_items:
+  - git
+  sudo: yes
+
+- name: Install Docker
+  shell: curl -sSL https://get.docker.com/ | sudo sh
+  sudo: yes
+
+- name: Install Docker Compose
+  shell: "curl -L https://github.com/docker/compose/releases/download/1.5.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose  && chmod +x /usr/local/bin/docker-compose"
+  sudo: yes
+
+- name: Create users
+  user: name={{item}}
+        state=present
+        home=/home/{{item}}
+        groups=sudo,docker
+        password={{password}}
+        generate_ssh_key=yes
+        shell=/bin/bash
+  with_items: "{{usernames}}"
+  tags: users
+
+- name: Add ssh keys
+  authorized_key: user=smith key={{ item }}
+  with_items: "{{authorized_keys}}"
+  tags: keys
+
+- name: Ensure latest ufw version
+  apt: pkg=ufw state=latest
+  tags: ufw
+
+- name: Set ufw policy to deny all incoming connections
+  ufw: policy=deny direction=incoming
+  tags: ufw
+
+- name: Set ufw policy to allow all ougoing connections
+  ufw: policy=allow direction=outgoing
+  tags: ufw
+
+- name: Set ufw to allow ntp
+  ufw: rule=allow port=ntp
+  with_items:
+  - ntp
+  - 443/tcp
+  tags: ufw
+
+- name: Set ufw rule to limit connections on ssh/tcp
+  ufw: rule=limit port=ssh proto=tcp
+  tags: ufw
+
+- name: Enable ufw logging
+  ufw: logging=on
+  tags: ufw
+
+- name: Start ufw
+  ufw: state=enabled
+  tags: ufw
+
+- name: Ensure cron-apt is at the latest version
+  apt: pkg=cron-apt state=latest
+  tags: cron-apt
+
+- name: Set timezone variables
+  copy: content='America/Los_Angeles'
+        dest=/etc/timezone
+        owner=root
+        group=root
+        mode=0644
+        backup=yes
+  notify:
+    - update timezone
+  tags: timezone
+
+- name: Ensure ntp is up to date
+  apt: name=ntp state=latest
+  tags: ntp
+
+- name: Ensure ntp is running
+  service: name=ntp state=started
+  tags: ntp
+

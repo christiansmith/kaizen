@@ -1,0 +1,16 @@
+---
+- hosts: forge
+  gather_facts: no
+  sudo: no
+  vars:
+    user: smith
+    usernames:
+      - smith
+    password: $6$rounds=100000$gQibigHxDXKqkaHX$ZUYOUhZ5goCX5Zs3Q0f5ijt/VtvLC5t166yFmdDxEgC9XSOwISeA6BxPnSi.sU1n.UtJaDjjw1FxV654AD8ZP.
+    authorized_keys:
+      - https://github.com/christiansmith.keys
+
+  roles:
+    - { role: common, tags: common }
+    - { role: kamaln7.swapfile, tags: swapfile }
+    - { role: workstation, tags: workstation }

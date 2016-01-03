@@ -1,0 +1,119 @@
+---
+- name: Add mosh apt repository into sources
+  apt_repository: repo='ppa:keithw/mosh' state=present
+  tags: mosh
+
+- name: Add tmate apt repository into sources
+  apt_repository: repo='ppa:nviennot/tmate' state=present
+  tags: tmate
+
+- name: Add hub apt repository into sources
+  apt_repository: repo='ppa:cpick/hub' state=present
+  tags: hub
+
+- name: Allow mosh ports
+  ufw: rule=allow port=60000:61000 proto=udp
+  tags: mosh
+
+- name: Ensure packages are up to date
+  apt: pkg={{ item }} state=latest update_cache=yes
+  with_items:
+  - curl
+  - git
+  - mercurial
+  - make
+  - binutils
+  - bison
+  - gcc
+  - build-essential
+  - python-software-properties
+  - silversearcher-ag
+  - zsh
+  - tmux
+  - vim
+  - mosh
+  - tmate
+  - hub
+  sudo: yes
+  tags: packages
+
+- name: Ensure zsh is the default shell
+  shell: chsh -s `which zsh` {{user}}
+  tags: zsh
+
+- name: Add git config
+  copy: src=~/.gitconfig
+        dest=/home/{{user}}/.gitconfig
+        owner={{user}}
+        group={{user}}
+  tags: git
+
+- name: Install Node.js
+  shell: "curl -sL https://deb.nodesource.com/setup_4.x | sudo bash - && sudo apt-get install -y nodejs"
+  sudo: yes
+  tags: nodejs
+
+- name: Ensure the latest version of npm
+  command: npm install -g npm
+
+- name: Install dotfiles
+  git: repo=https://github.com/christiansmith/kaizen.git dest=/home/{{user}}/.kaizen
+  sudo: yes
+  sudo_user: "{{user}}"
+  tags: dotfiles
+
+- name: Link dotfiles
+  file: src=/home/{{user}}/.kaizen/{{ item }}
+        dest=/home/{{user}}/{{ item }}
+        owner={{user}}
+        group={{user}}
+        state=link
+        force=yes
+  with_items:
+    - .aliases
+    - .tmux.conf
+    - .vimrc
+    - .zshrc
+  tags: dotfiles
+
+- name: Install antigen
+  shell: zsh -c "source /home/{{user}}/.kaizen/antigen/antigen.zsh; source /home/{{user}}/.zshrc"
+  sudo: yes
+  sudo_user: "{{user}}"
+  tags: dotfiles
+
+- name: Create .vim/bundle directory
+  file: path=/home/{{user}}/.vim/bundle
+        state=directory mode=0755
+        owner={{user}}
+        group={{user}}
+  tags: dotfiles
+
+- name: Link Vundle.vim into .vim/bundle directory
+  file: src=/home/{{user}}/.kaizen/Vundle.vim
+        dest=/home/{{user}}/.vim/bundle/Vundle.vim
+        owner={{user}}
+        group={{user}}
+        state=link
+        force=yes
+  tags: dotfiles
+
+- name: Install vim plugins
+  shell: vim +PluginInstall +qall
+  sudo: yes
+  sudo_user: "{{user}}"
+  tags: dotfiles
+
+- name: Install vim plugins
+  shell: cp -r /home/{{user}}/.vim/bundle/vim-colorschemes/colors /home/{{user}}/.vim/colors
+  sudo: yes
+  sudo_user: "{{user}}"
+  tags: dotfiles
+
+- name: Make standard directories
+  file: path=/home/{{user}}/{{item}} state=directory owner={{user}} group={{user}}
+  with_items:
+    - GitHub
+    - GitLab
+    - Code
+  tags: home-directories
